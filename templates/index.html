@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blind Navigator</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+    <style>
+        /* ==============================
+           RESET & BASE
+           ============================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            /* Animated gradient background to make glassmorphism pop */
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #e94560);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            font-size: 18px;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ==============================
+           GLASSMORPHISM UTILITY
+           ============================== */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+        }
+
+        /* ==============================
+           HEADER
+           ============================== */
+        header {
+            margin: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        header p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        /* ==============================
+           MAP CONTAINER
+           ============================== */
+        .map-wrapper {
+            margin: 0 20px 20px 20px;
+            padding: 10px;
+        }
+
+        #map {
+            width: 100%;
+            height: 35vh;
+            min-height: 250px;
+            border-radius: 12px;
+            z-index: 1;
+        }
+
+        /* ==============================
+           CONTROLS PANEL
+           ============================== */
+        #controls {
+            flex: 1;
+            padding: 0 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ==============================
+           STATUS DISPLAY
+           ============================== */
+        #status-box {
+            padding: 20px;
+            text-align: center;
+        }
+
+        #status-icon {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+
+        #status-text {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        #status-detail {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 6px;
+        }
+
+        /* ==============================
+           NAVIGATION INFO
+           ============================== */
+        #nav-info {
+            padding: 20px;
+            display: none;
+        }
+
+        #nav-info.active {
+            display: block;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-row:last-child {
+            border-bottom: none;
+        }
+
+        .nav-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-value {
+            font-size: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-value.direction {
+            color: #ffb86c;
+        }
+
+        .nav-value.distance {
+            color: #50fa7b;
+        }
+
+        /* ==============================
+           BUTTONS & INPUTS
+           ============================== */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 20px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            color: white;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-speak {
+            background: rgba(46, 160, 67, 0.4);
+        }
+        .btn-speak:hover:not(:disabled) { background: rgba(46, 160, 67, 0.6); }
+
+        .btn-speak.listening {
+            background: rgba(218, 54, 51, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-navigate {
+            background: rgba(31, 111, 235, 0.4);
+        }
+        .btn-navigate:hover:not(:disabled) { background: rgba(31, 111, 235, 0.6); }
+
+        .btn-stop {
+            background: rgba(218, 54, 51, 0.4);
+        }
+        .btn-stop:hover:not(:disabled) { background: rgba(218, 54, 51, 0.6); }
+
+        .btn-icon {
+            font-size: 28px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+
+        #text-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        #destination-input {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 18px;
+            color: #ffffff;
+            outline: none;
+        }
+        
+        #destination-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-search {
+            background: rgba(110, 64, 201, 0.4);
+            color: #ffffff;
+            padding: 0 24px;
+            font-size: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .btn-search:hover {
+            background: rgba(110, 64, 201, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* ==============================
+           INSTRUCTION BANNER
+           ============================== */
+        #instruction-banner {
+            background: rgba(31, 111, 235, 0.4);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            display: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #instruction-banner.active {
+            display: block;
+        }
+
+        #instruction-banner.arrived {
+            background: rgba(46, 160, 67, 0.5);
+        }
+
+        /* ==============================
+           RESPONSIVE
+           ============================== */
+        @media (max-width: 480px) {
+            header h1 { font-size: 26px; }
+            #map { height: 30vh; }
+            .btn { padding: 16px 20px; font-size: 18px; }
+            #status-text { font-size: 18px; }
+            #instruction-banner { font-size: 18px; }
+            header, .map-wrapper, #controls {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===========================
+         HEADER
+         =========================== -->
+    <header class="glass">
+        <h1 aria-label="Blind Navigator">🧭 Blind Navigator</h1>
+        <p>Voice-guided walking navigation</p>
+    </header>
+
+    <!-- ===========================
+         MAP
+         =========================== -->
+    <div class="map-wrapper glass">
+        <div id="map" role="img" aria-label="Navigation map showing your route"></div>
+    </div>
+
+    <!-- ===========================
+         CONTROLS
+         =========================== -->
+    <div id="controls">
+
+        <!-- Status Display -->
+        <div id="status-box" class="glass" role="status" aria-live="polite">
+            <span id="status-icon">📍</span>
+            <div id="status-text">Getting your location...</div>
+            <div id="status-detail"></div>
+        </div>
+
+        <!-- Instruction Banner -->
+        <div id="instruction-banner" class="glass" role="alert" aria-live="assertive"></div>
+
+        <!-- Navigation Info Panel -->
+        <div id="nav-info" class="glass" aria-label="Navigation details">
+            <div class="nav-row">
+                <span class="nav-label">Checkpoint</span>
+                <span class="nav-value" id="nav-checkpoint">—</span>
+            </div>
+            <div class="nav-row">
+                <span class="nav-label">Distance</span>
+                <span class="nav-value distance" id="nav-distance">—</span>
+            </div>
+            <div class="nav-row">
+                <span class="nav-label">Action</span>
+                <span class="nav-value direction" id="nav-action">—</span>
+            </div>
+            <div class="nav-row">
+                <span class="nav-label">Direction</span>
+                <span class="nav-value direction" id="nav-direction">—</span>
+            </div>
+        </div>
+
+        <!-- Speak Destination Button -->
+        <button id="btn-speak" class="btn btn-speak" aria-label="Speak your destination">
+            <span class="btn-icon">🎤</span>
+            SPEAK DESTINATION
+        </button>
+
+        <!-- Text Input Fallback -->
+        <div id="text-input-group">
+            <input id="destination-input" class="glass" type="text" placeholder="Or type destination here..." aria-label="Type your destination" />
+            <button id="btn-text-search" class="btn-search" aria-label="Search destination">🔍</button>
+        </div>
+
+        <!-- Start Navigation Button -->
+        <button id="btn-navigate" class="btn btn-navigate" disabled aria-label="Start navigation">
+            <span class="btn-icon">▶️</span>
+            START NAVIGATION
+        </button>
+
+        <!-- Stop Navigation Button -->
+        <button id="btn-stop" class="btn btn-stop" style="display:none" aria-label="Stop navigation">
+            <span class="btn-icon">⏹️</span>
+            STOP NAVIGATION
+        </button>
+
+    </div>
+
+    <!-- ===========================
+         LEAFLET JS
+         =========================== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <!-- ===========================
+         APP JAVASCRIPT
+         =========================== -->
+    <script>
+    // ==========================================
+    // STATE
+    // ==========================================
+    let userLat = null;
+    let userLng = null;
+    let destLat = null;
+    let destLng = null;
+    let destAddress = "";
+    let navigating = false;
+    let navInterval = null;
+    let lastSpokenTime = 0;
+    const SPEAK_INTERVAL = 10000; // 10 seconds
+
+    // ==========================================
+    // MAP SETUP
+    // ==========================================
+    const map = L.map("map").setView([24.8, 92.8], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19
+    }).addTo(map);
+
+    const userIcon = L.divIcon({ html: '<div style="font-size:28px">📍</div>', iconSize: [28, 28], iconAnchor: [14, 28], className: "" });
+    const destIcon = L.divIcon({ html: '<div style="font-size:28px">🏁</div>', iconSize: [28, 28], iconAnchor: [14, 28], className: "" });
+
+    let userMarker = null;
+    let destMarker = null;
+    let routeLine = null;
+    let checkpointMarkers = [];
+
+    // ==========================================
+    // SPEECH SYNTHESIS (TEXT TO SPEECH)
+    // ==========================================
+    function speak(text) {
+        console.log("Speaking:", text);
+        if ("speechSynthesis" in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-IN";
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // ==========================================
+    // SPEECH RECOGNITION (VOICE TO TEXT)
+    // ==========================================
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = "en-IN";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+    }
+
+    // ==========================================
+    // UI ELEMENTS
+    // ==========================================
+    const btnSpeak = document.getElementById("btn-speak");
+    const btnNavigate = document.getElementById("btn-navigate");
+    const btnStop = document.getElementById("btn-stop");
+    const btnTextSearch = document.getElementById("btn-text-search");
+    const destinationInput = document.getElementById("destination-input");
+    const statusIcon = document.getElementById("status-icon");
+    const statusText = document.getElementById("status-text");
+    const statusDetail = document.getElementById("status-detail");
+    const navInfo = document.getElementById("nav-info");
+    const navCheckpoint = document.getElementById("nav-checkpoint");
+    const navDistance = document.getElementById("nav-distance");
+    const navAction = document.getElementById("nav-action");
+    const navDirection = document.getElementById("nav-direction");
+    const instructionBanner = document.getElementById("instruction-banner");
+
+    // ==========================================
+    // STATUS HELPERS
+    // ==========================================
+    function setStatus(icon, text, detail = "") {
+        statusIcon.textContent = icon;
+        statusText.textContent = text;
+        statusDetail.textContent = detail;
+    }
+
+    function showInstruction(text, isArrived = false) {
+        instructionBanner.textContent = text;
+        instructionBanner.classList.add("active");
+        instructionBanner.classList.toggle("arrived", isArrived);
+    }
+
+    function hideInstruction() {
+        instructionBanner.classList.remove("active");
+        instructionBanner.classList.remove("arrived");
+    }
+
+    // ==========================================
+    // GET USER LOCATION
+    // ==========================================
+    async function getUserLocation() {
+        if ("geolocation" in navigator) {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
+                });
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                updateUserMarker();
+                setStatus("📍", "Location found", `${userLat.toFixed(4)}, ${userLng.toFixed(4)}`);
+                speak("Your location has been found.");
+                return;
+            } catch (error) {
+                console.log("Browser geolocation failed, trying IP fallback:", error);
+            }
+        }
+        try {
+            const response = await fetch("/api/location");
+            const data = await response.json();
+            if (response.ok) {
+                userLat = data.latitude;
+                userLng = data.longitude;
+                updateUserMarker();
+                setStatus("📍", "Location found (approximate)", `${userLat.toFixed(4)}, ${userLng.toFixed(4)}`);
+                speak("Your approximate location has been found.");
+            } else {
+                setStatus("❌", "Could not get location", "Please check your internet.");
+                speak("I could not find your location. Please check your internet.");
+            }
+        } catch (error) {
+            setStatus("❌", "Connection error", error.message);
+        }
+    }
+
+    // ==========================================
+    // UPDATE MAP MARKERS
+    // ==========================================
+    function updateUserMarker() {
+        if (!userLat || !userLng) return;
+        if (userMarker) {
+            userMarker.setLatLng([userLat, userLng]);
+        } else {
+            userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(map).bindPopup("You are here");
+        }
+        if (!destMarker) {
+            map.setView([userLat, userLng], 15);
+        }
+    }
+
+    function setDestinationMarker(lat, lng, address) {
+        if (destMarker) map.removeLayer(destMarker);
+        destMarker = L.marker([lat, lng], { icon: destIcon }).addTo(map).bindPopup(address).openPopup();
+        if (userMarker) {
+            const bounds = L.latLngBounds([userLat, userLng], [lat, lng]);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }
+
+    function drawRoute(geometry) {
+        if (routeLine) map.removeLayer(routeLine);
+        checkpointMarkers.forEach(m => map.removeLayer(m));
+        checkpointMarkers = [];
+        if (!geometry || !geometry.coordinates) return;
+        const latlngs = geometry.coordinates.map(coord => [coord[1], coord[0]]);
+        routeLine = L.polyline(latlngs, { color: "#58a6ff", weight: 5, opacity: 0.8 }).addTo(map);
+        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+    }
+
+    function addCheckpointMarkers(checkpoints) {
+        checkpoints.forEach((cp, index) => {
+            const marker = L.circleMarker([cp.latitude, cp.longitude], {
+                radius: 8, color: "#f0883e", fillColor: "#f0883e", fillOpacity: 0.7, weight: 2
+            }).addTo(map).bindPopup(`Checkpoint ${cp.checkpoint_number}: ${cp.instruction_type} ${cp.direction}`);
+            checkpointMarkers.push(marker);
+        });
+    }
+
+    // ==========================================
+    // SEARCH DESTINATION
+    // ==========================================
+    async function searchDestination(placeName) {
+        setStatus("🔍", "Searching...", placeName);
+        speak(`Searching for ${placeName}`);
+        try {
+            const response = await fetch("/api/search", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ place: placeName })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                destLat = data.latitude;
+                destLng = data.longitude;
+                destAddress = data.address;
+                setDestinationMarker(destLat, destLng, destAddress);
+                setStatus("✅", "Destination found", destAddress);
+                speak(`Destination found. ${destAddress}. Press Start Navigation when ready.`);
+                btnNavigate.disabled = false;
+            } else {
+                setStatus("❌", "Destination not found", data.error || "Please try again.");
+                speak(`Could not find ${placeName}. Please try a different name.`);
+            }
+        } catch (error) {
+            setStatus("❌", "Search error", error.message);
+            speak("Search failed. Please try again.");
+        }
+    }
+
+    // ==========================================
+    // START NAVIGATION
+    // ==========================================
+    async function startNavigation() {
+        if (!userLat || !destLat) return;
+        setStatus("🗺️", "Finding route...", "Please wait");
+        speak("Finding walking route to your destination.");
+        try {
+            const response = await fetch("/api/route", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ start_latitude: userLat, start_longitude: userLng, dest_latitude: destLat, dest_longitude: destLng })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                setStatus("❌", "Route not found", data.error);
+                speak("Could not find a walking route.");
+                return;
+            }
+            drawRoute(data.geometry);
+            addCheckpointMarkers(data.checkpoints);
+            speak(`Route found. Distance is ${data.distance_km} kilometers. Estimated time is ${data.duration_min} minutes. There are ${data.checkpoints.length} checkpoints. Navigation starting now.`);
+            
+            navigating = true;
+            btnSpeak.disabled = true;
+            btnNavigate.style.display = "none";
+            btnStop.style.display = "flex";
+            navInfo.classList.add("active");
+            destinationInput.disabled = true;
+            btnTextSearch.disabled = true;
+            
+            if (data.checkpoints.length > 0) {
+                const first = data.checkpoints[0];
+                showInstruction(`Head towards checkpoint 1: ${first.instruction_type} ${first.direction}`);
+            }
+            lastSpokenTime = 0;
+            navInterval = setInterval(trackPosition, 3000);
+        } catch (error) {
+            setStatus("❌", "Error starting navigation", error.message);
+        }
+    }
+
+    // ==========================================
+    // TRACK POSITION (LIVE LOOP)
+    // ==========================================
+    async function trackPosition() {
+        if (!navigating) return;
+        let currentLat = userLat;
+        let currentLng = userLng;
+        
+        if ("geolocation" in navigator) {
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000, maximumAge: 2000 });
+                });
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+                userLat = currentLat;
+                userLng = currentLng;
+                updateUserMarker();
+            } catch (error) { console.log("Geolocation update failed:", error); }
+        }
+
+        try {
+            const response = await fetch("/api/check", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
+            });
+            const result = await response.json();
+            if (!response.ok) return;
+
+            const now = Date.now();
+
+            if (result.status === "moving") {
+                const cp = result.current_checkpoint;
+                const dist = result.distance.toFixed(0);
+                navCheckpoint.textContent = cp.checkpoint_number;
+                navDistance.textContent = `${dist}m`;
+                navAction.textContent = cp.instruction_type;
+                navDirection.textContent = cp.direction;
+                setStatus("🚶", `Moving to checkpoint ${cp.checkpoint_number}`, `${dist} meters remaining`);
+                
+                if (now - lastSpokenTime > SPEAK_INTERVAL) {
+                    speak(`${dist} meters to checkpoint ${cp.checkpoint_number}. ${cp.instruction_type} ${cp.direction}.`);
+                    lastSpokenTime = now;
+                }
+            } else if (result.status === "checkpoint_passed") {
+                const passed = result.passed_checkpoint;
+                const next = result.next_checkpoint;
+                showInstruction(`✓ Checkpoint ${passed.checkpoint_number} passed! Now ${next.instruction_type} ${next.direction}.`);
+                navCheckpoint.textContent = next.checkpoint_number;
+                navAction.textContent = next.instruction_type;
+                navDirection.textContent = next.direction;
+                setStatus("✅", `Checkpoint ${passed.checkpoint_number} passed!`, `Next: ${next.instruction_type} ${next.direction}`);
+                speak(`Checkpoint ${passed.checkpoint_number} passed! Now ${next.instruction_type} ${next.direction}. Head towards checkpoint ${next.checkpoint_number}.`);
+                lastSpokenTime = now;
+            } else if (result.status === "destination_reached") {
+                stopNavigation();
+                showInstruction("🎉 You have reached your destination!", true);
+                setStatus("🎉", "Destination reached!", destAddress);
+                navInfo.classList.remove("active");
+                speak("Congratulations! You have reached your destination. Navigation complete.");
+            }
+        } catch (error) { console.error("Tracking error:", error); }
+    }
+
+    // ==========================================
+    // STOP NAVIGATION
+    // ==========================================
+    function stopNavigation() {
+        navigating = false;
+        if (navInterval) { clearInterval(navInterval); navInterval = null; }
+        fetch("/api/stop", { method: "POST" });
+        btnSpeak.disabled = false;
+        btnNavigate.style.display = "flex";
+        btnNavigate.disabled = true;
+        btnStop.style.display = "none";
+        navInfo.classList.remove("active");
+        destinationInput.disabled = false;
+        btnTextSearch.disabled = false;
+        destLat = null;
+        destLng = null;
+    }
+
+    // ==========================================
+    // EVENT LISTENERS
+    // ==========================================
+    btnSpeak.addEventListener("click", () => {
+        if (!recognition) {
+            speak("Voice input is not supported in this browser. Please type your destination.");
+            destinationInput.focus();
+            return;
+        }
+        btnSpeak.classList.add("listening");
+        btnSpeak.innerHTML = '<span class="btn-icon">🔴</span> LISTENING...';
+        speak("Please say your destination.");
+        setTimeout(() => { recognition.start(); }, 1500);
+    });
+
+    if (recognition) {
+        recognition.addEventListener("result", (event) => {
+            const transcript = event.results[0][0].transcript;
+            btnSpeak.classList.remove("listening");
+            btnSpeak.innerHTML = '<span class="btn-icon">🎤</span> SPEAK DESTINATION';
+            destinationInput.value = transcript;
+            searchDestination(transcript);
+        });
+        recognition.addEventListener("error", (event) => {
+            btnSpeak.classList.remove("listening");
+            btnSpeak.innerHTML = '<span class="btn-icon">🎤</span> SPEAK DESTINATION';
+            if (event.error === "no-speech") speak("No voice detected. Please try again.");
+            else speak("Voice recognition error. Please try again or type your destination.");
+            setStatus("🎤", "Voice not detected", "Try again or type your destination");
+        });
+        recognition.addEventListener("end", () => {
+            btnSpeak.classList.remove("listening");
+            btnSpeak.innerHTML = '<span class="btn-icon">🎤</span> SPEAK DESTINATION';
+        });
+    }
+
+    btnTextSearch.addEventListener("click", () => {
+        const place = destinationInput.value.trim();
+        if (place) searchDestination(place);
+        else speak("Please enter a destination.");
+    });
+
+    destinationInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            const place = destinationInput.value.trim();
+            if (place) searchDestination(place);
+        }
+    });
+
+    btnNavigate.addEventListener("click", startNavigation);
+
+    btnStop.addEventListener("click", () => {
+        stopNavigation();
+        hideInstruction();
+        setStatus("⏹️", "Navigation stopped", "Speak or type a new destination");
+        speak("Navigation stopped.");
+    });
+
+    window.addEventListener("load", () => {
+        speak("Welcome to Blind Navigator.");
+        getUserLocation();
+    });
+    </script>
+</body>
+</html>
