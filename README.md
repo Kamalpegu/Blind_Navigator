@@ -1,79 +1,87 @@
 # 🧭 Blind Navigator
 
-### An AI-powered assistive navigation system designed to help visually impaired users understand and navigate their surroundings.
+### An accessibility-focused web application designed to assist visually impaired users through voice-based interaction.
 
-**Blind Navigator** is a Python-based accessibility project that uses computer vision, audio feedback, and intelligent processing to help visually impaired users identify objects, understand their environment, and navigate more independently.
+**Blind Navigator** is a Python-based assistive technology project focused on making digital interaction and navigation more accessible for visually impaired users.
 
-The application is designed with simplicity and accessibility in mind, providing information through **voice-based interaction** rather than relying primarily on visual interfaces.
-
----
-
-## ✨ Features
-
-* 🧭 **Assistive Navigation** — Helps users understand their surrounding environment.
-* 👁️ **Object Detection** — Identifies objects and obstacles using computer vision.
-* 🔊 **Voice Feedback** — Converts detected information into audio guidance.
-* 🎙️ **Voice Interaction** — Enables hands-free interaction.
-* ⚡ **Real-Time Processing** — Processes visual information and provides feedback with minimal delay.
-* ♿ **Accessibility Focused** — Designed specifically around the needs of visually impaired users.
-* 🌐 **Web-Based Interface** — Can be deployed and accessed through a web browser.
-* ☁️ **PythonAnywhere Deployment** — Supports easy cloud deployment.
+The current version focuses on building the core web application and voice-based interaction system, with **computer vision and advanced navigation capabilities planned for future development**.
 
 ---
 
-## 🏗️ How It Works
+## ✨ Current Features
+
+* 🔊 **Voice-Based Interaction** — Designed around audio-based interaction rather than relying solely on visual interfaces.
+* ♿ **Accessibility Focused** — Built with visually impaired users as the primary target audience.
+* 🌐 **Web-Based Application** — Accessible through a standard web browser.
+* 🐍 **Python Backend** — Lightweight Python-based application architecture.
+* ⚡ **Responsive Interaction** — Designed for quick and simple user interaction.
+* ☁️ **Cloud Deployment** — Can be deployed using PythonAnywhere.
+* 🔧 **Extensible Architecture** — Structured to support additional assistive technologies in future versions.
+
+---
+
+## 🚧 Future Development
+
+Blind Navigator is an ongoing project. The following capabilities are planned for future releases:
+
+* 👁️ **Computer Vision** — Real-time understanding of the user's surroundings.
+* 🚧 **Obstacle Detection** — Detect obstacles and provide audio warnings.
+* 📦 **Object Recognition** — Identify important objects in the user's environment.
+* 🚦 **Traffic Signal Recognition** — Assist users in understanding traffic signals.
+* 🛣️ **Road & Sign Recognition** — Detect and interpret road signs and markings.
+* 🗺️ **GPS Navigation** — Provide location-based navigation assistance.
+* 🏢 **Indoor Navigation** — Assist users in navigating buildings and indoor environments.
+* 🗣️ **Advanced Voice Assistant** — More natural conversational interaction.
+* 📱 **Mobile Application** — Extend the platform to smartphones.
+* 🌍 **Multi-Language Support** — Support multiple regional and international languages.
+
+---
+
+# 🏗️ Project Vision
+
+The long-term goal of Blind Navigator is to create an **AI-powered assistive navigation platform** that can help visually impaired users better understand and navigate their surroundings.
+
+The project is being developed incrementally, starting with the core application and gradually introducing advanced capabilities such as computer vision, object detection, navigation, and intelligent voice assistance.
 
 ```text
-                ┌──────────────────┐
-                │      User        │
-                │  Voice / Camera  │
-                └────────┬─────────┘
-                         │
-                         ▼
-                ┌──────────────────┐
-                │ Blind Navigator  │
-                │     Backend      │
-                └────────┬─────────┘
-                         │
-              ┌──────────┴──────────┐
-              │                     │
-              ▼                     ▼
-       ┌──────────────┐      ┌──────────────┐
-       │ Computer     │      │ Voice        │
-       │ Vision       │      │ Processing   │
-       └──────┬───────┘      └──────┬───────┘
-              │                     │
-              └──────────┬──────────┘
-                         ▼
-                ┌──────────────────┐
-                │ Intelligent      │
-                │ Processing       │
-                └────────┬─────────┘
-                         │
-                         ▼
-                ┌──────────────────┐
-                │ Audio Guidance   │
-                │ & User Feedback  │
-                └──────────────────┘
+Current
+   │
+   ▼
+Voice-Based Accessibility
+   │
+   ▼
+Core Web Application
+   │
+   ▼
+Computer Vision
+   │
+   ▼
+Object & Obstacle Detection
+   │
+   ▼
+Navigation Assistance
+   │
+   ▼
+AI-Powered Assistive Navigator
 ```
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Technology Stack
 
-| Technology                     | Purpose                         |
-| ------------------------------ | ------------------------------- |
-| 🐍 **Python**                  | Core application logic          |
-| 👁️ **Computer Vision**        | Environment and object analysis |
-| 🔊 **Speech / Audio**          | Voice-based feedback            |
-| 🌐 **HTML / CSS / JavaScript** | Web interface                   |
-| ⚡ **Python Web Framework**     | Backend/API                     |
-| ☁️ **PythonAnywhere**          | Cloud deployment                |
-| 📦 **Git & GitHub**            | Version control                 |
+| Technology                     | Purpose                       |
+| ------------------------------ | ----------------------------- |
+| 🐍 **Python**                  | Application logic and backend |
+| 🌐 **HTML / CSS / JavaScript** | Web interface                 |
+| 🔊 **Voice Technologies**      | Audio-based interaction       |
+| ☁️ **PythonAnywhere**          | Cloud deployment              |
+| 📦 **Git & GitHub**            | Version control               |
+
+> Additional AI and computer-vision technologies will be introduced as the project evolves.
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 ```text
 Blind_Navigator/
@@ -85,12 +93,9 @@ Blind_Navigator/
 ├── LICENSE
 │
 ├── static/
-│   ├── css/
-│   ├── js/
 │   └── ...
 │
 ├── templates/
-│   ├── index.html
 │   └── ...
 │
 └── ...
@@ -102,12 +107,12 @@ Blind_Navigator/
 
 ## Prerequisites
 
-Make sure you have the following installed:
+Make sure you have:
 
 * Python 3.9+
 * Git
 * pip
-* A supported web browser
+* A modern web browser
 
 ---
 
@@ -148,27 +153,17 @@ pip install -r requirements.txt
 
 ## 4. Run the Application
 
-Start the application using the appropriate command for the project's backend.
-
-For a Flask application, for example:
-
 ```bash
 python app.py
 ```
 
-The application will normally be available at:
-
-```text
-http://127.0.0.1:5000
-```
-
-Open the address in your browser.
+Open the application in your browser using the local URL provided by the application.
 
 ---
 
 # ☁️ Deploy on PythonAnywhere
 
-Blind Navigator can be deployed using **PythonAnywhere**.
+Blind Navigator can be deployed on **PythonAnywhere**.
 
 ### 1. Create a Web App
 
@@ -177,8 +172,6 @@ Blind Navigator can be deployed using **PythonAnywhere**.
 3. Select **Add a new web app**.
 4. Choose **Manual configuration**.
 5. Select the Python version required by the project.
-
----
 
 ### 2. Clone the Repository
 
@@ -189,27 +182,18 @@ git clone https://github.com/Kamalpegu/Blind_Navigator.git
 cd Blind_Navigator
 ```
 
----
-
 ### 3. Create a Virtual Environment
 
 ```bash
 mkvirtualenv --python=/usr/bin/python3.11 blind-navigator
 ```
 
-Activate it:
+Then:
 
 ```bash
 workon blind-navigator
-```
-
-Install the dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
-
----
 
 ### 4. Configure the Virtual Environment
 
@@ -221,13 +205,9 @@ In the **Web** tab, set the virtual environment path to:
 
 Replace `YOUR_USERNAME` with your PythonAnywhere username.
 
----
-
 ### 5. Configure WSGI
 
-Open the WSGI configuration file from the **Web** tab.
-
-Use:
+Open the WSGI configuration file and configure:
 
 ```python
 import sys
@@ -240,21 +220,17 @@ if project_path not in sys.path:
 from wsgi import application
 ```
 
-Replace `YOUR_USERNAME` with your actual PythonAnywhere username.
-
----
+Replace `YOUR_USERNAME` with your PythonAnywhere username.
 
 ### 6. Reload
 
-Go back to the **Web** tab and click:
+Go to the **Web** tab and click **Reload**.
 
-**Reload**
-
-Your application should now be accessible through your PythonAnywhere URL.
+Your application should now be available through your PythonAnywhere URL.
 
 ---
 
-# 🔄 Updating the Deployment
+# 🔄 Updating the Application
 
 After pushing new changes to GitHub:
 
@@ -263,24 +239,21 @@ cd ~/Blind_Navigator
 git pull origin main
 ```
 
-Then go to the **Web** tab and click **Reload**.
+Then reload the application from the PythonAnywhere **Web** tab.
 
 ---
 
-# 🔐 Environment Variables
+# 🔐 Security
 
-If the project uses API keys or other credentials, keep them outside the repository.
+Do not commit sensitive information such as:
 
-For example:
+* API keys
+* Passwords
+* Secret keys
+* `.env` files
+* Authentication credentials
 
-```text
-API_KEY=your_api_key
-SECRET_KEY=your_secret_key
-```
-
-**Never commit sensitive credentials to GitHub.**
-
-Add sensitive files such as `.env` to `.gitignore`:
+Add sensitive files to `.gitignore`:
 
 ```text
 .env
@@ -291,59 +264,25 @@ __pycache__/
 
 ---
 
-# 🖥️ Screenshots
+# 🎯 Project Status
 
-Add screenshots of the application here to showcase the project.
-
-```text
-screenshots/
-├── home.png
-├── navigation.png
-└── detection.png
-```
-
-Example:
-
-```markdown
-![Blind Navigator](screenshots/home.png)
-```
-
----
-
-# 🎯 Project Goals
-
-Blind Navigator aims to explore how modern software and AI technologies can be used to improve accessibility.
-
-### Main goals
-
-* Improve environmental awareness for visually impaired users.
-* Provide useful information through audio instead of visual output.
-* Reduce the complexity of assistive interfaces.
-* Explore real-time computer vision and voice technologies.
-* Build an accessible and practical assistive technology solution.
-
----
-
-# 🔮 Future Improvements
-
-Potential improvements include:
-
-* 🗺️ GPS-based navigation
-* 🚦 Traffic-light and road-sign recognition
-* 🚧 Advanced obstacle detection
-* 🧑‍🤝‍🧑 Person recognition
-* 🏢 Indoor navigation
-* 📍 Location-aware assistance
-* 📱 Mobile application
-* 🗣️ More natural conversational voice interaction
-* ⚡ Improved real-time processing
-* 🌐 Multi-language support
+| Component                 | Status                                          |
+| ------------------------- | ----------------------------------------------- |
+| Core Web Application      | ✅ Available                                     |
+| Voice-Based Interaction   | 🔄 In Development / Available where implemented |
+| PythonAnywhere Deployment | ✅ Supported                                     |
+| Computer Vision           | 🚧 Planned                                      |
+| Object Detection          | 🚧 Planned                                      |
+| Obstacle Detection        | 🚧 Planned                                      |
+| GPS Navigation            | 🚧 Planned                                      |
+| Indoor Navigation         | 🚧 Planned                                      |
+| Mobile Application        | 🚧 Planned                                      |
 
 ---
 
 # 🤝 Contributing
 
-Contributions are welcome!
+Contributions and ideas are welcome.
 
 1. Fork the repository.
 2. Create a new branch:
@@ -353,7 +292,7 @@ git checkout -b feature/new-feature
 ```
 
 3. Make your changes.
-4. Commit your changes:
+4. Commit:
 
 ```bash
 git commit -m "Add new feature"
@@ -373,7 +312,7 @@ git push origin feature/new-feature
 
 This project is licensed under the **MIT License**.
 
-See the [`LICENSE`](LICENSE) file for details.
+See the `LICENSE` file for details.
 
 ---
 
@@ -384,17 +323,15 @@ See the [`LICENSE`](LICENSE) file for details.
 GitHub:
 https://github.com/Kamalpegu
 
-Project:
+Repository:
 https://github.com/Kamalpegu/Blind_Navigator
 
 ---
 
-## ⭐ Show Your Support
+## ⭐ Support
 
-If you find **Blind Navigator** interesting or useful, consider giving the repository a ⭐ on GitHub.
+If you like the idea behind **Blind Navigator**, consider giving the repository a ⭐ on GitHub.
 
 ---
 
-### 🧭 Blind Navigator
-
-> **Technology should make the world more accessible — not less.**
+> **Blind Navigator — Building technology for a more accessible future.** 🧭♿
